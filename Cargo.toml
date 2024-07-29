@@ -1,0 +1,12 @@
+[package]
+name = "Verfassungsbooks-Rendering-Server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bincode = "2.0.0-rc.3"
+tokio = { version = "1", features = ["full"] }
+tokio-rustls = "0.26.0"
+config = "0"
+serde = { version = "1.0.204", features = ["derive"] }
+rustls-pemfile = "2.1.2"
