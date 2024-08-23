@@ -1,0 +1,40 @@
+image: archlinux
+packages:
+  - rustup
+sources:
+  - https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Rendering-Server
+secrets:
+  - e0cce48a-4ebb-406d-886b-a5d1c6bcf234
+environment:
+  deploy: verfassungsbot@anghenfil.de
+tasks:
+  - setup: |
+      rustup default stable
+  - build: |
+      branch_name=$(echo $GIT_REF | rev | cut -d'/' -f1 | rev)
+      cd Verfassungsbooks-Rendering-Server
+      cargo build --release
+      cd rendering-envs
+      ./setup.sh
+      echo "$branch_name-$(git rev-parse --short HEAD)" > version.txt
+  - packaging: |
+      cd Verfassungsbooks-Rendering-Server
+      mkdir packaged
+      cp target/release/Verfassungsbooks-Rendering-Server packaged/
+      mkdir packaged/config
+      mkdir packaged/rendering-envs
+      cp -R rendering-envs/* packaged/rendering-envs
+      cp config/default.toml packaged/config/
+      cp version.txt packaged/
+      cd packaged && tar -vczf ../verfassungsbooks-rendering-server-bundled.tar.gz *
+  - deploy: |
+      branch_name=$(echo $GIT_REF | rev | cut -d'/' -f1 | rev)
+      if [ "$branch_name" == "staging" ]; then
+          
+      fi
+artifacts:
+  - Verfassungsbooks/verfassungsbooks-bundled.tar.gz
+triggers:
+  - action: email
+    condition: failure
+    to: kd@verfassungsblog.de
