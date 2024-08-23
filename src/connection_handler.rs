@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::thread;
 use std::time::Duration;
 use tokio::net::TcpStream;
 use tokio_rustls::TlsStream;
-use vb_exchange::{CommunicationError, Message, RenderingError, RenderingStatus, TemplateDataRequest};
+use vb_exchange::{CommunicationError, FilesOnMemoryOrHarddrive, Message, RenderingError, RenderingStatus, TemplateDataRequest};
 use crate::settings::Settings;
 use crate::storage::{Storage, TemplateStorageEntry};
 
@@ -14,7 +13,7 @@ pub async fn process_connection(mut tls_stream: TlsStream<TcpStream>, storage: A
     let status_storage = storage.request_status.clone();
 
     // Get rendering request
-    let rendering_request = match vb_exchange::read_message(&mut tls_stream).await{
+    let mut rendering_request = match vb_exchange::read_message(&mut tls_stream).await{
         Ok(msg) => {
             if let Message::RenderingRequest(req) = msg{
                 req
@@ -74,29 +73,9 @@ pub async fn process_connection(mut tls_stream: TlsStream<TcpStream>, storage: A
             return;
         }
 
-        let res = tokio::task::spawn_blocking(move || {
-            match template_data.contents.to_file(PathBuf::from(&settings.temp_template_path).join(template_data.template_version_id.to_string())){
-                Ok(_) => {
-                    Ok(())
-                },
-                Err(e) => {
-                    eprintln!("Couldn't save template data to file: {}", e);
-                    Err(())
-                }
-            }
-        }).await;
-
-        match res{
-            Ok(res2) => match res2{
-                Ok(_) => {}
-                Err(_) => {
-                    return
-                }
-            },
-            Err(e) => {
-                eprintln!("Couldn't join: {}", e);
-                return
-            }
+        if let Err(e) = template_data.contents.to_file(PathBuf::from(&settings.temp_template_path).join(template_data.template_version_id.to_string())).await{
+            eprintln!("Couldn't save template data to file: {}", e);
+            return;
         }
 
         let entry = TemplateStorageEntry{
@@ -104,6 +83,19 @@ pub async fn process_connection(mut tls_stream: TlsStream<TcpStream>, storage: A
             export_formats: template_data.export_formats,
         };
         template_storage.write().unwrap().insert(rendering_request.template_id, entry);
+    }
+
+    if let FilesOnMemoryOrHarddrive::Memory(mem) = rendering_request.project_uploaded_files{
+        let id = uuid::Uuid::new_v4();
+        let path = PathBuf::from(format!("temp/{}", id));
+
+        tokio::fs::create_dir(&path).await;
+        if let Err(e) = vb_exchange::recursive_write_dir_async(path.clone(), mem).await{
+            eprintln!("Couldn't put uploads to filesystem: {}", e);
+            status_storage.write().unwrap().insert(rendering_request.request_id.clone(), RenderingStatus::Failed(RenderingError::Other("IO Error saving uploads".to_string())));
+            return;
+        }
+        rendering_request.project_uploaded_files = FilesOnMemoryOrHarddrive::Harddrive(path);
     }
 
     request_storage.write().unwrap().push_front(rendering_request);

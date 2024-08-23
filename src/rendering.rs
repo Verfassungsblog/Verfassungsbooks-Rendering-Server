@@ -3,7 +3,7 @@ use std::hash::Hasher;
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 use base64::Engine;
@@ -12,7 +12,7 @@ use handlebars::{Context, DirectorySourceOptions, Handlebars, Helper, HelperResu
 use image::Luma;
 use qrcode::QrCode;
 use tokio::task::JoinSet;
-use vb_exchange::{NamedFile, RenderingError, RenderingRequest, RenderingResult, RenderingStatus};
+use vb_exchange::{FilesOnMemoryOrHarddrive, NamedFile, RenderingError, RenderingRequest, RenderingResult, RenderingStatus};
 use vb_exchange::export_formats::{ExportStepData, PandocExportStep, RawExportStep, VivliostyleExportStep};
 use vb_exchange::projects::PreparedProject;
 use crate::settings::Settings;
@@ -109,6 +109,13 @@ pub async fn rendering_worker(storage: Arc<Storage>, settings: Arc<Settings>) {
                         if let Err(e) = tokio::fs::remove_dir_all(dir).await{
                             eprintln!("Couldn't delete temp dir: {}. Keeping it for now.", e);
                         }
+                    }
+                }
+
+                // Delete project uploads
+                if let FilesOnMemoryOrHarddrive::Harddrive(path) = &render_request.project_uploaded_files{
+                    if let Err(e) = tokio::fs::remove_dir_all(path).await{
+                        eprintln!("Couldn't delete project uploads dir: {}.", e);
                     }
                 }
 
@@ -238,6 +245,11 @@ fn prepare_temp_directory(request: Arc<RenderingRequest>, export_format_slug: &s
 
     // Copy export format specific assets
     let dir_content = fs::read_dir(base_dir.join(format!("formats/{}", export_format_slug)))?;
+
+    // Copy project uploads
+    if let vb_exchange::FilesOnMemoryOrHarddrive::Harddrive(path) = &request.project_uploaded_files{
+        copy_dir_all(path, temp_dir_path.join("uploads"))?;
+    }
 
     for entry in dir_content{
         let entry = entry?;
@@ -392,6 +404,8 @@ pub fn render_pandoc_export_step(step: PandocExportStep, temp_dir: &PathBuf, ren
             command.arg(format!("--epub-embed-font={}", font));
         }
     }
+
+    command.arg(format!("data/{}", step.input_file));
 
     match command.output() {
         Ok(res1) => {
