@@ -4,3 +4,6 @@ ca_cert_path = "certs/root.crt"
 client_cert_path = "certs/client1.crt"
 client_key_path = "certs/client1.key"
 revocation_list_path = "certs/crl.der"
+temp_template_path = "templates"
+# Number of rendering requests to be executed concurrently
+max_rendering_threads = 10

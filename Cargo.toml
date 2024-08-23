@@ -5,8 +5,16 @@ edition = "2021"
 
 [dependencies]
 bincode = "2.0.0-rc.3"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full", "rt"] }
 tokio-rustls = "0.26.0"
 config = "0"
 serde = { version = "1.0.204", features = ["derive"] }
 rustls-pemfile = "2.1.2"
+vb-exchange = {path = "../Verfassungsbooks-Exchange-Lib"}
+#vb-exchange = {git = "https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Exchange-Lib"}
+uuid = { version = "1.10.0", features = ["v4"] }
+async-recursion = "1.1.1"
+handlebars = { version = "6.0.0", features = ["dir_source"] }
+qrcode = "0.14"
+image = "0.25.2"
+base64 = "0.22.0"
