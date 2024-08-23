@@ -1762,6 +1762,7 @@ dependencies = [
 [[package]]
 name = "vb-exchange"
 version = "0.1.0"
+source = "git+https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Exchange-Lib#f6d9f1da754a3e0bea3407dc32916c6dd3066f97"
 dependencies = [
  "bincode",
  "rustls-pemfile",
