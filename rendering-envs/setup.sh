@@ -74,7 +74,7 @@ cd vivliostyle/node-build || exit 1
 ./configure --fully-static
 
 # Step 8: Determine the number of CPU cores
-num_jobs=$(nproc)
+num_jobs=$(nproc --ignore=1)
 
 # Step 9: Build Node.js with the maximum number of jobs
 make -j"$num_jobs"
