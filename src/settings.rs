@@ -6,7 +6,7 @@ use serde::Deserialize;
 #[allow(unused)]
 pub struct Settings {
     /// hostname of this rendering server
-    pub hostname: String,
+    pub bind_to_host: String,
     /// port to listen on
     pub port: usize,
     /// Path to the CA certificate

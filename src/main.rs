@@ -99,14 +99,14 @@
 //! Rendering Server -> Main Server: Send Rendering Result: [vb_exchange::Message::RenderingResult]
 
 use std::any::Any;
-use std::fs::{create_dir, remove_dir, remove_dir_all};
+use std::fs::{create_dir, remove_dir_all};
 use std::future::Future;
 use std::path::Path;
 use std::sync::Arc;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 use tokio_rustls::rustls::server::WebPkiClientVerifier;
-use tokio_rustls::rustls::{ClientConfig, ServerConfig};
+use tokio_rustls::rustls::ServerConfig;
 use tokio_rustls::TlsAcceptor;
 use crate::settings::Settings;
 use vb_exchange::certs::*;
@@ -140,7 +140,6 @@ async fn main() {
     let root_ca = Arc::new(load_root_ca(settings.ca_cert_path.clone()));
     let client_cert = load_client_cert(settings.client_cert_path.clone());
     let client_key = load_private_key(settings.client_key_path.clone());
-    let client_key2 = load_private_key(settings.client_key_path.clone());
     let crls = load_crl(settings.revocation_list_path.clone());
 
     // Server Config
@@ -150,13 +149,9 @@ async fn main() {
         .with_client_cert_verifier(client_verifier)
         .with_single_cert(client_cert.clone(), client_key).expect("Couldn't build Server Config. Check Certs & Key!");
 
-    // Client Config
-    let client_config = ClientConfig::builder_with_protocol_versions(&[&tokio_rustls::rustls::version::TLS13])
-        .with_root_certificates(root_ca).with_client_auth_cert(client_cert, client_key2).expect("Couldn't build Client Config. Check Certs & Key!");
-
     // Create Server to listen on incoming rendering requests
     let acceptor = TlsAcceptor::from(Arc::new(server_config));
-    let listener = TcpListener::bind(format!("{}:{}", settings.hostname, settings.port)).await.unwrap();
+    let listener = TcpListener::bind(format!("{}:{}", settings.bind_to_host, settings.port)).await.unwrap();
 
     // Spawn rendering thread
     let storage_cpy = storage.clone();
