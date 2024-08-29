@@ -26,7 +26,7 @@ tasks:
       cp config/default.toml packaged/config/
       cd packaged && tar -vczf ../verfassungsbooks-rendering-server-bundled.tar.gz *
 artifacts:
-  - Verfassungsbooks/verfassungsbooks-bundled.tar.gz
+  - Verfassungsbooks-Rendering-Server/verfassungsbooks-rendering-server-bundled.tar.gz
 triggers:
   - action: email
     condition: failure
