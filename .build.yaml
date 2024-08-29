@@ -1,12 +1,13 @@
 image: archlinux
 packages:
   - rustup
+  - nodejs
 sources:
   - https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Rendering-Server
 secrets:
-  - e0cce48a-4ebb-406d-886b-a5d1c6bcf234
+  - 416fdee7-bb30-4fef-9a14-f0983a977006
 environment:
-  deploy: verfassungsbot@anghenfil.de
+  deploy: verfassungsbooks@138.201.174.17
 tasks:
   - setup: |
       rustup default stable
@@ -14,24 +15,21 @@ tasks:
       branch_name=$(echo $GIT_REF | rev | cut -d'/' -f1 | rev)
       cd Verfassungsbooks-Rendering-Server
       cargo build --release
-      cd rendering-envs
-      ./setup.sh
-      echo "$branch_name-$(git rev-parse --short HEAD)" > version.txt
   - packaging: |
       cd Verfassungsbooks-Rendering-Server
       mkdir packaged
       cp target/release/Verfassungsbooks-Rendering-Server packaged/
       mkdir packaged/config
       mkdir packaged/rendering-envs
+      mkdir packaged/templates
       cp -R rendering-envs/* packaged/rendering-envs
       cp config/default.toml packaged/config/
-      cp version.txt packaged/
       cd packaged && tar -vczf ../verfassungsbooks-rendering-server-bundled.tar.gz *
   - deploy: |
       branch_name=$(echo $GIT_REF | rev | cut -d'/' -f1 | rev)
-      if [ "$branch_name" == "staging" ]; then
-          
-      fi
+      echo "Deploying to staging"
+      scp -o StrictHostKeyChecking=no Verfassungsbooks-Rendering-Server/verfassungsbooks-rendering-server-bundled.tar.gz $deploy:/home/verfassungsbooks/
+      ssh $deploy cd /home/verfassungsbooks && ./update.sh verfassungsbooks-rendering-server-bundled.tar.gz rendering-server
 artifacts:
   - Verfassungsbooks/verfassungsbooks-bundled.tar.gz
 triggers:
