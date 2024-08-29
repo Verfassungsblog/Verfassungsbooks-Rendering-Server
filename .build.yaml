@@ -25,11 +25,6 @@ tasks:
       cp -R rendering-envs/* packaged/rendering-envs
       cp config/default.toml packaged/config/
       cd packaged && tar -vczf ../verfassungsbooks-rendering-server-bundled.tar.gz *
-  - deploy: |
-      branch_name=$(echo $GIT_REF | rev | cut -d'/' -f1 | rev)
-      echo "Deploying to staging"
-      scp -o StrictHostKeyChecking=no Verfassungsbooks-Rendering-Server/verfassungsbooks-rendering-server-bundled.tar.gz $deploy:/home/verfassungsbooks/
-      ssh $deploy cd /home/verfassungsbooks && ./update.sh verfassungsbooks-rendering-server-bundled.tar.gz rendering-server
 artifacts:
   - Verfassungsbooks/verfassungsbooks-bundled.tar.gz
 triggers:
