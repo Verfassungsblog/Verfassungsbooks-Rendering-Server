@@ -349,9 +349,10 @@ pub fn render_vivliostyle_export_step(step: VivliostyleExportStep, temp_dir: &Pa
 
     if Path::new("/usr/share/fonts").exists(){
         command.arg("--ro-bind").arg("/usr/share/fonts").arg("/usr/share/fonts");
-    }
-    if Path::new("/usr/local/share/fonts").exists(){
-        command.arg("--ro-bind").arg("/usr/local/share/fonts").arg("/usr/share/fonts/more");
+    }else {
+        if Path::new("/usr/local/share/fonts").exists() {
+            command.arg("--ro-bind").arg("/usr/local/share/fonts").arg("/usr/share/fonts/");
+        }
     }
 
     command.arg("--bind").arg(temp_dir).arg("/data").arg("--ro-bind").arg("rendering-envs/vivliostyle").arg("/env").arg("/env/node").arg("/env/node_modules/.bin/vivliostyle").arg("build").arg(format!("/data/{}", step.input_file));
