@@ -345,8 +345,16 @@ pub fn render_vivliostyle_export_step(step: VivliostyleExportStep, temp_dir: &Pa
     // Start bubblewrap
     let mut command = Command::new("bwrap");
 
-    command.arg("--unshare-all").arg("--tmpfs").arg("/tmp").arg("--ro-bind").arg("/lib").arg("/lib").arg("--ro-bind").arg("/lib64").arg("/lib64").arg("--ro-bind").arg("/usr/lib").arg("/usr/lib").arg("--proc").arg("/proc").arg("--dev").arg("/dev").arg("--ro-bind").arg("/usr/share/fonts").arg("/usr/share/fonts")
-        .arg("--bind").arg(temp_dir).arg("/data").arg("--ro-bind").arg("rendering-envs/vivliostyle").arg("/env").arg("/env/node").arg("/env/node_modules/.bin/vivliostyle").arg("build").arg(format!("/data/{}", step.input_file));
+    command.arg("--unshare-all").arg("--tmpfs").arg("/tmp").arg("--ro-bind").arg("/lib").arg("/lib").arg("--ro-bind").arg("/lib64").arg("/lib64").arg("--ro-bind").arg("/usr/lib").arg("/usr/lib").arg("--proc").arg("/proc").arg("--dev").arg("/dev");
+
+    command.arg("--bind").arg(temp_dir).arg("/data").arg("--ro-bind").arg("rendering-envs/vivliostyle").arg("/env").arg("/env/node").arg("/env/node_modules/.bin/vivliostyle").arg("build").arg(format!("/data/{}", step.input_file));
+
+    if Path::new("/usr/share/fonts").exists(){
+        command.arg("--ro-bind").arg("/usr/share/fonts").arg("/usr/share/fonts");
+    }
+    if Path::new("/usr/local/share/fonts").exists(){
+        command.arg("--ro-bind").arg("/usr/local/share/fonts").arg("/usr/share/fonts/more");
+    }
 
     if step.press_ready{
         command.arg("-p");
