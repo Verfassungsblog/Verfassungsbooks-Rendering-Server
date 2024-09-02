@@ -1,5 +1,4 @@
 use std::{fs, io};
-use std::hash::Hasher;
 use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -136,7 +135,7 @@ pub async fn rendering_worker(storage: Arc<Storage>, settings: Arc<Settings>) {
 }
 
 #[derive(Clone)]
-struct ExportFormatRenderingResult{
+pub struct ExportFormatRenderingResult{
     /// Paths to all files that should be transferred to main server
     files_to_transfer: Vec<PathBuf>,
     /// Paths to all created temp directories to delete after file transfer

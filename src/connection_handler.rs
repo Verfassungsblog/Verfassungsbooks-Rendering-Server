@@ -89,7 +89,10 @@ pub async fn process_connection(mut tls_stream: TlsStream<TcpStream>, storage: A
         let id = uuid::Uuid::new_v4();
         let path = PathBuf::from(format!("temp/{}", id));
 
-        tokio::fs::create_dir(&path).await;
+        if let Err(e) = tokio::fs::create_dir(&path).await{
+            eprintln!("Couldn't create new directory at {}: {}", path.to_str().unwrap_or(""), e);
+            return;
+        }
         if let Err(e) = vb_exchange::recursive_write_dir_async(path.clone(), mem).await{
             eprintln!("Couldn't put uploads to filesystem: {}", e);
             status_storage.write().unwrap().insert(rendering_request.request_id.clone(), RenderingStatus::Failed(RenderingError::Other("IO Error saving uploads".to_string())));
