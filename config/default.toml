@@ -1,8 +1,8 @@
-bind_to_host = "127.0.0.1"
+bind_to_host = "[::]"
 port = "6969"
 ca_cert_path = "certs/root.crt"
-client_cert_path = "certs/client1.crt"
-client_key_path = "certs/client1.key"
+client_cert_path = "certs/client.crt"
+client_key_path = "certs/client.key"
 revocation_list_path = "certs/crl.der"
 temp_template_path = "templates"
 # Number of rendering requests to be executed concurrently
