@@ -55,6 +55,7 @@
 //! extendedKeyUsage = clientAuth, serverAuth
 //! authorityKeyIdentifier = keyid,issuer
 //! subjectKeyIdentifier = hash
+//! subjectAltName = $ENV::SAN
 //!
 //! ```
 //!
@@ -82,11 +83,12 @@
 //! 1. On the Server: Generate a private key & a certificate signing request: (Replace <hostname> with your hostname (or use localhost for testing))
 //! ```
 //! openssl ecparam -name prime256v1 -genkey -noout -out client.key
-//! openssl req -new -key client.key -out client.csr -sha256 -addext "subjectAltName = DNS:<hostname>"
+//! openssl req -new -key client.key -out client.csr -sha256
 //! ```
 //! 2. Transfer your .csr File to the computer with the CA certificate
-//! 3. Sign with the CA:
+//! 3. Set the SAN & sign with the CA:
 //! ```
+//! export SAN="DNS:<hostname>"
 //! openssl ca -config ca.conf -in client.csr -out client.crt -days 3650 -extensions usr_cert
 //! ```
 //!
@@ -120,10 +122,18 @@ pub mod rendering;
 async fn main() {
     let settings : Arc<Settings> = Arc::new(Settings::new().expect("Couldn't read config(s)!"));
 
-    // Clear template folder
-    if let Err(e) = storage::clear_template_dir(&settings){
-        eprintln!("Couldn't clear template dir: {}", e);
-        return;
+    // Clear template folder or create if it doesn't exist
+    let path = Path::new(&settings.temp_template_path);
+    if !path.exists(){
+        if let Err(e) = tokio::fs::create_dir(path).await{
+            eprintln!("Couldn't create new temp template dir: {}. Check your temp_template_path setting & file permissions.", e);
+            return;
+        }
+    }else {
+        if let Err(e) = storage::clear_template_dir(&settings) {
+            eprintln!("Couldn't clear template dir: {}", e);
+            return;
+        }
     }
 
     // Remove and re-crate temp dir
