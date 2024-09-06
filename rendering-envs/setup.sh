@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # Prepares the environments for pandoc & vivliostyle
 
