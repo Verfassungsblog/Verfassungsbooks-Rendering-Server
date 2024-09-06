@@ -24,11 +24,13 @@ This is the rendering server software for verfassungsbooks servers.
 8. Build project:
 `cargo build --release`
 
-## Note on rendering environments
-Currently the server requires rendering environments for pandoc & vivliostyle.
-Since we want as few dependencies as possible, we need a static compiled version of
-node & a chromium executable. You can just run the setup.sh inside
-rendering-envs, but this will build it from scratch which may take multiple hours.
+## Using prebuilt amd64 binary:
+Go to the [latest build](https://builds.sr.ht/~verfassungsblog/Verfassungsbooks-Rendering-Server/commits/master) and download the verfassungsbooks-rendering-server-bundled.tar.gz.
 
-You probably want to use the prebuilt rendering-environments available [here]().
-If you are using the 
+## Running the server
+### Dependencies
+* Install the dependencies for chromium (ubuntu example): `apt install bubblewrap libnss3-tools libatk-bridge2.0-0 libcups2 libxcomposite-dev libxrandr2 libxdamage1 libasound2t64 libcairo2 libasound2t64 libgbm1 libpango-1.0-0`
+### Rendering Env
+Either run setup.sh inside rendering-envs (which will take a few hours), or download the prebuilt environment [here](https://builds.sr.ht/~verfassungsblog/vb-rendering-envs) (open the latest success build and download the artifact.
+### Configuration
+Copy the default config config/default.toml to config/local.toml and change if necessary.
