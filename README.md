@@ -2,6 +2,7 @@
 
 This is the rendering server software for verfassungsbooks servers.
 
+# Installation
 ## Building from source
 ### Debian Example:
 1. Install git & openssl & gcc & gcc-multilib:
@@ -33,4 +34,5 @@ Go to the [latest build](https://builds.sr.ht/~verfassungsblog/Verfassungsbooks-
 ### Rendering Env
 Either run setup.sh inside rendering-envs (which will take a few hours), or download the prebuilt environment [here](https://builds.sr.ht/~verfassungsblog/vb-rendering-envs) (open the latest success build and download the artifact.
 ### Configuration
-Copy the default config config/default.toml to config/local.toml and change if necessary.
+Copy the default config config/default.toml to config/local.toml and change if necessary. Copy the mtls certificates to an appropriate location and set paths in config.
+See the verfassungsbooks repository for hints for CA & Certificate creation.
