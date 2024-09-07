@@ -3,7 +3,7 @@ packages:
   - rustup
   - nodejs
 sources:
-  - https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Rendering-Server
+  - https://github.com/Verfassungsblog/Verfassungsbooks-Rendering-Server
 secrets:
   - 416fdee7-bb30-4fef-9a14-f0983a977006
 environment:
