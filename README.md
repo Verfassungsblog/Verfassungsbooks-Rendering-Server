@@ -19,7 +19,7 @@ This is the rendering server software for verfassungsbooks servers.
 7. cd to home:
 `cd ~`
 6. Clone respository:
-`git clone https://git.sr.ht/~verfassungsblog/Verfassungsbooks-Rendering-Server`
+`git clone https://github.com/Verfassungsblog/Verfassungsbooks-Rendering-Server.git`
 7. cd to new directory:
 `cd Verfassungsbooks-Rendering-Server/`
 8. Build project:
