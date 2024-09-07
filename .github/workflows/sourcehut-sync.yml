@@ -23,4 +23,4 @@ jobs:
     - name: Push to SourceHut
       run: |
         git remote add sourcehut git@git.sr.ht:~verfassungsblog/Verfassungsbooks-Rendering-Server
-        git push sourcehut --all
+        git push sourcehut --force --all
