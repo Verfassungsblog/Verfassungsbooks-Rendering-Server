@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bincode = "2.0.0-rc.3"
+bincode = "3.0.0"
 tokio = { version = "1", features = ["full", "rt"] }
 tokio-rustls = "0.26.0"
 config = "0"
